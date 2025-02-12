@@ -114,8 +114,12 @@ func (settings *RoomSettings) FromEnv(apiVersion int, envs []string) error {
 }
 
 type PortSettings struct {
-	FrontendPort   uint16
-	EprMin, EprMax uint16
+    FrontendPort int
+    EprMin       uint16
+    EprMax       uint16
+    // Add these fields
+    PlaywrightDebugEprMin uint16
+    PlaywrightDebugEprMax uint16
 }
 
 type RoomStats struct {

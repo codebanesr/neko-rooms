@@ -3,7 +3,7 @@
   "AutofillCreditCardEnabled": false,
   "BrowserSignin": 0,
   "DefaultNotificationsSetting": 2,
-  "DeveloperToolsAvailability": 2,
+  "DeveloperToolsAvailability": 0,
   "EditBookmarksEnabled": false,
   "FullscreenAllowed": true,
   "IncognitoModeAvailability": 1,
@@ -19,9 +19,11 @@
   "BookmarkBarEnabled": false,
   "PasswordManagerEnabled": false,
   "URLBlocklist": [
-      "file://*",
-      "chrome://policy"
+    "file://*",
+    "chrome://policy"
   ],
+  "RemoteDebuggingAllowed": true,
+  "RemoteDebuggingPort": 9222,
   "ExtensionInstallForcelist": [
       "cjpalhdlnbpafiamejdnhcphjbkeiagm;https://clients2.google.com/service/update2/crx",
       "fjoaledfpmneenckfbpdfhkmimnjocfa;https://clients2.google.com/service/update2/crx"
@@ -31,6 +33,6 @@
       "fjoaledfpmneenckfbpdfhkmimnjocfa"
   ],
   "ExtensionInstallBlocklist": [
-      "*"
+    "*"
   ]
 }

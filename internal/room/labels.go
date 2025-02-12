@@ -16,6 +16,7 @@ type RoomLabels struct {
 	URL  string
 	Mux  bool
 	Epr  EprPorts
+    PlaywrightDebugEpr EprPorts // Added for Playwright debug ports
 
 	NekoImage  string
 	ApiVersion int

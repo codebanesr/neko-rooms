@@ -7,7 +7,7 @@ networks:
 
 services:
   neko-rooms:
-    image: "m1k1o/neko-rooms:latest"
+    build: .
     restart: "unless-stopped"
     environment:
       - "TZ=Europe/Vienna"
@@ -18,7 +18,10 @@ services:
       - "NEKO_ROOMS_INSTANCE_NETWORK=neko-rooms-net"
       - "NEKO_ROOMS_TRAEFIK_ENABLED=false"
       - "NEKO_ROOMS_PATH_PREFIX=/room/"
+      - "NEKO_ROOMS_STORAGE_INTERNAL=/data"
+      - "NEKO_ROOMS_STORAGE_EXTERNAL=${PWD}/data"    # Using PWD variable
     ports:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./data:/data"    # Using relative path

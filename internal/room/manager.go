@@ -272,9 +272,9 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 		if val, ok := inspect.Config.Labels["org.opencontainers.image.url"]; ok {
 			// TODO: this should be removed in future, but since we have a lot of legacy images, we need to support it
 			switch val {
-			case "https://github.com/m1k1o/neko":
+			case "https://github.com/m1k1o/neko": // v2 uses github url
 				settings.ApiVersion = 2
-			case "https://github.com/demodesk/neko":
+			case "https://gitlab.com/m1k1o/neko-rooms": // v3 uses gitlab url
 				settings.ApiVersion = 3
 			}
 		}
@@ -312,6 +312,16 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 	if err != nil {
 		return "", err
 	}
+	// Allocate ports for Playwright debugging.  Offset from the webrtc ports.
+	playwrightDebugPortsNeeded := settings.MaxConnections
+	playwrightDebugEpr, err := manager.allocatePorts(ctx, playwrightDebugPortsNeeded)
+	if err != nil {
+		return "", err
+	}
+    // Adjust the starting point for playwright ports, ensure no overlap.
+    // Simple offset. Can be improved with more robust allocation if needed.
+	playwrightDebugEpr.Min = epr.Max + 1
+    playwrightDebugEpr.Max = playwrightDebugEpr.Min + playwrightDebugPortsNeeded -1
 
 	portBindings := nat.PortMap{}
 	for port := epr.Min; port <= epr.Max; port++ {
@@ -330,6 +340,16 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 					HostPort: fmt.Sprintf("%d", port),
 				},
 			}
+		}
+	}
+
+	// Playwright debug port bindings
+	for port := playwrightDebugEpr.Min; port <= playwrightDebugEpr.Max; port++ {
+		portBindings[nat.Port(fmt.Sprintf("%d/tcp", port))] = []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: fmt.Sprintf("%d", port),
+			},
 		}
 	}
 
@@ -357,6 +377,7 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 		Name: roomName,
 		Mux:  manager.config.Mux,
 		Epr:  epr,
+        PlaywrightDebugEpr: playwrightDebugEpr,
 
 		NekoImage:  settings.NekoImage,
 		ApiVersion: settings.ApiVersion,
@@ -434,13 +455,15 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 	//
 	// Set environment variables
 	//
-
+    // Include Playwright Debug Ports in environment variables
 	env, err := settings.ToEnv(
 		manager.config,
 		types.PortSettings{
 			FrontendPort: frontendPort,
 			EprMin:       epr.Min,
 			EprMax:       epr.Max,
+            PlaywrightDebugEprMin: playwrightDebugEpr.Min,
+            PlaywrightDebugEprMax: playwrightDebugEpr.Max,
 		})
 	if err != nil {
 		return "", err
@@ -625,7 +648,7 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 		// Hostname
 		Hostname: hostname,
 		// Domainname is preventing from running container on LXC (Proxmox)
-		// https://www.gitmemory.com/issue/docker/for-linux/743/524569376
+		// 
 		// Domainname: containerName,
 		// List of exposed ports
 		ExposedPorts: exposedPorts,
