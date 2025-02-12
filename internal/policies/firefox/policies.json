@@ -112,7 +112,10 @@
       "extensions.getAddons.showPane": false,
       "places.history.enabled": false,
       "privacy.file_unique_origin": true,
-      "ui.key.menuAccessKeyFocuses": false
+      "ui.key.menuAccessKeyFocuses": false,
+      "devtools.debugger.remote-enabled": true,
+      "devtools.debugger.remote-debugging-port": 9222,
+      "devtools.debugger.prompt-connection": false
     },
     "PromptForDownloadLocation": false,
     "SanitizeOnShutdown": true
