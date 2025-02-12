@@ -158,10 +158,24 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 
 	exposedPorts := nat.PortSet{
 		nat.Port(fmt.Sprintf("%d/tcp", frontendPort)): struct{}{},
+		nat.Port("9222/tcp"): struct{}{},  // Add Chrome DevTools Protocol port
 	}
 
 	for port := range portBindings {
 		exposedPorts[port] = struct{}{}
+	}
+
+	// Add port binding for Chrome DevTools Protocol
+	devtoolsPort, err := utils.GetFreePort()
+	if err != nil {
+		return "", fmt.Errorf("failed to allocate port for DevTools: %v", err)
+	}
+	
+	portBindings[nat.Port("9222/tcp")] = []nat.PortBinding{
+		{
+			HostIP:   "0.0.0.0",
+			HostPort: fmt.Sprintf("%d", devtoolsPort),
+		},
 	}
 
 	//

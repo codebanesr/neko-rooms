@@ -7,7 +7,9 @@ networks:
 
 services:
   neko-rooms:
-    image: "m1k1o/neko-rooms:latest"
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: "unless-stopped"
     environment:
       - "TZ=Europe/Vienna"
