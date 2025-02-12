@@ -165,19 +165,20 @@ func (manager *RoomManagerCtx) Create(ctx context.Context, settings types.RoomSe
 		exposedPorts[port] = struct{}{}
 	}
 
-	// Add port binding for Chrome DevTools Protocol
-	devtoolsPort, err := utils.GetFreePort()
+	// Get container count and calculate debug port
+	containerCount, err := manager.getContainerCount(ctx)
 	if err != nil {
-		return "", fmt.Errorf("failed to allocate port for DevTools: %v", err)
+		return "", fmt.Errorf("failed to get container count: %v", err)
 	}
-	
+	debugPort := 9000 + containerCount
+
 	portBindings[nat.Port("9222/tcp")] = []nat.PortBinding{
 		{
 			HostIP:   "0.0.0.0",
-			HostPort: fmt.Sprintf("%d", devtoolsPort),
+			HostPort: fmt.Sprintf("%d", debugPort),
 		},
 	}
-
+	
 	//
 	// Set internal labels
 	//

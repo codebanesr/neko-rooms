@@ -137,3 +137,11 @@ func (manager *RoomManagerCtx) containerExec(ctx context.Context, id string, cmd
 	data, err := io.ReadAll(conn.Reader)
 	return string(data), err
 }
+
+func (manager *RoomManagerCtx) getContainerCount(ctx context.Context) (int, error) {
+	containers, err := manager.listContainers(ctx, map[string]string{})
+	if err != nil {
+		return 0, err
+	}
+	return len(containers), nil
+}
